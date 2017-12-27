@@ -5,6 +5,8 @@ import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -19,8 +21,12 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,6 +36,7 @@ public class Fragment1 extends Fragment {
     private ListView mListView;
     Cursor mCursor;
     private ListViewAdapter mAdaptor;
+    private ListViewItem item;
     final int REQ_CODE_SELECT_IMAGE = 100;
 
     @Override
@@ -73,14 +80,12 @@ public class Fragment1 extends Fragment {
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                ListViewItem item = (ListViewItem) parent.getItemAtPosition(position);
+                item = (ListViewItem) parent.getItemAtPosition(position);
                 final CharSequence[] items = {"사진 추가", "수정하기", "삭제하기"};
 
                 String name = item.getName();
                 String phoneNum = item.getPhoneNum();
                 Drawable icon = item.getIcon();
-
-                Toast.makeText(getActivity().getApplicationContext(), "롱클릭 성공", Toast.LENGTH_LONG).show();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle("원하시는 작업을 선택하세요.")
@@ -111,6 +116,32 @@ public class Fragment1 extends Fragment {
 
 
         return v;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != RESULT_OK){
+            Toast.makeText(getActivity(), "Failed...", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (requestCode == REQ_CODE_SELECT_IMAGE) {
+            try {
+                Bitmap mImage = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), data.getData());
+                Drawable mImageDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(mImage, 160, 160, true));
+
+                item.setIcon(mImageDrawable);
+                mAdaptor.notifyDataSetChanged();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     static class CompareNameDesc implements Comparator<ListViewItem>{
