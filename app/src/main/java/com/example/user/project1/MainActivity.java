@@ -12,9 +12,9 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
-    private final int FRAGMENT1 = 1;
+    private final int Contact_Fragment = 1;
     private final int FRAGMENT2 = 2;
-    private final int FRAGMENT3 = 3;
+    private final int Matching_Fragment = 3;
     private Button bt_tab1, bt_tab2, bt_tab3;
 
     @Override
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_tab3.setOnClickListener(this);
 
         // 임의로 액티비티 호출 시점에 어느 프레그먼트를 프레임레이아웃에 띄울 것인지를 정함
-        callFragment(FRAGMENT1);
+        callFragment(Contact_Fragment);
     }
 
 
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()){
             case R.id.bt_tab1 :
                 // '버튼1' 클릭 시 '프래그먼트1' 호출
-                callFragment(FRAGMENT1);
+                callFragment(Contact_Fragment);
                 break;
 
             case R.id.bt_tab2 :
@@ -104,20 +104,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.bt_tab3 :
                 // '버튼3' 클릭 시 '프래그먼트3' 호출
-                callFragment(FRAGMENT3);
+                callFragment(Matching_Fragment);
                 break;
         }
     }
 
-    private void callFragment(int frament_no){
+    public void callFragment(int frament_no){
         // 프래그먼트 사용을 위해
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         switch (frament_no){
             case 1:
                 // '프래그먼트1' 호출
-                Fragment1 fragment1 = new Fragment1();
-                transaction.replace(R.id.fragment_container, fragment1);
+                Contact_Fragment contactFragment = new Contact_Fragment();
+                transaction.replace(R.id.fragment_container, contactFragment);
                 transaction.commit();
                 break;
 
@@ -130,8 +130,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case 3:
                 // '프래그먼트3' 호출
-                Fragment3 fragment3 = new Fragment3();
-                transaction.replace(R.id.fragment_container, fragment3);
+                Matching_Fragment matchingFragment = new Matching_Fragment();
+                transaction.replace(R.id.fragment_container, matchingFragment);
                 transaction.commit();
                 break;
         }

@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">project1</string>
-    <string name="contact_refresh">주소록 갱신하기</string>
+    <string name="contact_refresh">변경 사항 초기화</string>
 </resources>

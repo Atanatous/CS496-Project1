@@ -31,10 +31,8 @@ import static android.app.Activity.RESULT_OK;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Fragment1 extends Fragment {
-    Button mAddressBtn;
+public class Contact_Fragment extends Fragment {
     private ListView mListView;
-    Cursor mCursor;
     private ListViewAdapter mAdaptor;
     private ListViewItem item;
     final int REQ_CODE_SELECT_IMAGE = 100;
@@ -42,38 +40,18 @@ public class Fragment1 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_fragment1, container, false);
+        View v = inflater.inflate(R.layout.contact_fragment, container, false);
 
         mListView = (ListView) v.findViewById(R.id.contact_list_view);
         mAdaptor = new ListViewAdapter();
 
-        ContentResolver cr = getActivity().getContentResolver();
-        mCursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+        makeContactList();
 
-        mCursor.moveToFirst();
-
-        while (mCursor.moveToNext()){
-            int phoneidx = mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-            int nameidx = mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
-
-            String name = mCursor.getString(nameidx);
-            String phoneNum = mCursor.getString(phoneidx);
-
-            if (mAdaptor.isDuplicate(name, phoneNum)){
-                continue;
-            }else {
-                mAdaptor.addItem(ContextCompat.getDrawable(getActivity(), R.drawable.ic_account_box),
-                        name, phoneNum);
-            }
-        }
-
-        Collections.sort(mAdaptor.getItemList(), new CompareNameDesc());
-
-        mAddressBtn = (Button) v.findViewById(R.id.btnAddress);
+        Button mAddressBtn = (Button) v.findViewById(R.id.btnAddress);
         mAddressBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mListView.setAdapter(mAdaptor);
+                makeContactList();
             }
         });
 
@@ -83,9 +61,7 @@ public class Fragment1 extends Fragment {
                 item = (ListViewItem) parent.getItemAtPosition(position);
                 final CharSequence[] items = {"사진 추가", "수정하기", "삭제하기"};
 
-                String name = item.getName();
-                String phoneNum = item.getPhoneNum();
-                Drawable icon = item.getIcon();
+                final String name = item.getName();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle("원하시는 작업을 선택하세요.")
@@ -100,8 +76,12 @@ public class Fragment1 extends Fragment {
                                         startActivityForResult(intent, REQ_CODE_SELECT_IMAGE);
                                         break;
                                     case 1:
+                                    //    ((MainActivity)getActivity()).callFragment(2);
                                         break;
                                     case 2:
+                                        mAdaptor.getItemList().remove(item);
+                                        Toast.makeText(getActivity(), name +"이(가) 삭제되었습니다.", Toast.LENGTH_LONG);
+                                        mAdaptor.notifyDataSetChanged();
                                         break;
                                 }
                             }
@@ -114,8 +94,45 @@ public class Fragment1 extends Fragment {
             }
         });
 
-
         return v;
+    }
+
+    // Clear List and input all contact data.
+    private void makeContactList(){
+        mAdaptor.getItemList().clear();
+        ContentResolver cr = getActivity().getContentResolver();
+        Cursor mCursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+
+        mCursor.moveToFirst();
+
+        while (mCursor.moveToNext()){
+            int phoneidx = mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+            int nameidx = mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+
+            String name = mCursor.getString(nameidx);
+            String phoneNum = mCursor.getString(phoneidx);
+
+            // make phone number pretty
+            if (!phoneNum.contains("-")){
+                if (phoneNum.length() == 8){
+                    phoneNum = phoneNum.substring(0, 3) + "-" + phoneNum.substring(3, 8) + "-" + phoneNum.substring(8);
+                }
+                else{
+                    phoneNum = phoneNum.substring(0, 3) + "-" + phoneNum.substring(3, 7) + "-" + phoneNum.substring(7);
+                }
+            }
+
+            // check if adaptor has same contact
+            if (mAdaptor.isDuplicate(name, phoneNum)){
+                continue;
+            }else {
+                mAdaptor.addItem(ContextCompat.getDrawable(getActivity(), R.drawable.ic_account_box),
+                        name, phoneNum);
+            }
+        }
+
+        Collections.sort(mAdaptor.getItemList(), new CompareNameDesc());
+        mListView.setAdapter(mAdaptor);
     }
 
     @Override
@@ -123,7 +140,6 @@ public class Fragment1 extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode != RESULT_OK){
-            Toast.makeText(getActivity(), "Failed...", Toast.LENGTH_LONG).show();
             return;
         }
 
