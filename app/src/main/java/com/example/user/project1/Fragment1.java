@@ -1,68 +1,70 @@
 package com.example.user.project1;
 
+import android.content.ContentResolver;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 
-import java.lang.invoke.ConstantCallSite;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class Fragment1 extends Fragment {
-
-    public Fragment1() {
-        // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-    }
+    private Button mAddressBtn;
+    private ListView mListView;
+    private Cursor mCursor;
+    private List<String> mContactList;
+    private ArrayAdapter mAdaptor;
 
     @Override
-    public View onCreateView(LayoutInflaterg inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_fragment1, container, false);
 
-        Cursor cursor = getURI();
+        mAddressBtn = (Button) v.findViewById(R.id.btnAddress);
+        mAddressBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mAdaptor = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, mContactList);
+                mListView.setAdapter(mAdaptor);
+            }
+        });
 
-        int count = 0;
-        int end = cursor.getCount();
-        String[] name = new String[end];
-        String[] phoneNumber = new String[end];
+        mListView = (ListView) v.findViewById(R.id.contact_list_view);
+        mContactList = new ArrayList<>();
 
-        if (cursor.moveToFirst()){
-            // 컬럼명으로 컬럼 인덱스 찾기
-            int idIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID);
-            int nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+        ContentResolver cr = getActivity().getContentResolver();
+        mCursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+        mCursor.moveToFirst();
+
+        while (mCursor.moveToNext()){
+            int phoneidx = mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+            int nameidx = mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+            String result = mCursor.getString(nameidx) + " : " + mCursor.getString(phoneidx);
+            mContactList.add(result);
         }
 
-        return inflater.inflate(R.layout.fragment_fragment1, container, false);
+        Collections.sort(mContactList, new CompareNameDesc());
+
+        return v;
     }
 
-    private Cursor getURI(){
-
-        // 주소록 URI
-        Uri people = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-
-        // 검색할 Column 정하기
-        String[] projection = new String[]{
-                ContactsContract.CommonDataKinds.Phone._ID,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Phone.NUMBER
-        };
-
-        // 쿼리 날려서 커서 얻기
-        String[] selectionArgs = null;
-        String sortOrder = ContactsContract.Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
-
-        return this.getActivity().managedQuery(people, projection, null, selectionArgs, sortOrder);
+    static class CompareNameDesc implements Comparator<String>{
+        @Override
+        public int compare(String o1, String o2){
+            return o1.compareTo(o2);
+        }
     }
 
 }
