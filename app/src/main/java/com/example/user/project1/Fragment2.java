@@ -78,7 +78,7 @@ public class Fragment2 extends Fragment {
         return view;
     }
 
-    public static ArrayList<String> getAllShownImagesPath(Activity activity) {
+    public ArrayList<String> getAllShownImagesPath(Activity activity) {
         Uri uri;
         Cursor cursor;
         int column_index_data, column_index_folder_name;
