@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">project1</string>
+    <string name="contact_refresh">주소록 갱신하기</string>
 </resources>

@@ -21,9 +21,9 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  */
 public class Fragment1 extends Fragment {
-    private Button mAddressBtn;
+    Button mAddressBtn;
     private ListView mListView;
-    private Cursor mCursor;
+    Cursor mCursor;
     private List<String> mContactList;
     private ArrayAdapter mAdaptor;
 
@@ -46,6 +46,7 @@ public class Fragment1 extends Fragment {
 
         ContentResolver cr = getActivity().getContentResolver();
         mCursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+
         mCursor.moveToFirst();
 
         while (mCursor.moveToNext()){
