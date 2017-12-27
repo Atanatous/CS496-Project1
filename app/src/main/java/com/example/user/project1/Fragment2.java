@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +37,7 @@ public class Fragment2 extends Fragment {
     private Button btnTEST;
     GridView gridView;
     ArrayList<String> imageList;
-    public static List<Bitmap> bitmapList;
+    public static List<Bitmap> bitmapList = new ArrayList<>();
 
     public Fragment2() {
         // Required empty public constructor
@@ -85,16 +86,15 @@ public class Fragment2 extends Fragment {
 
         //Convery uri to bitmap images
         for(int i = 0; i < imageList.size(); i++) {
+            Bitmap bitmap = null;
             try {
-                InputStream is = getActivity().getContentResolver().openInputStream( Uri.parse( imageList.get(0) ) );
-                Bitmap bitmap = BitmapFactory.decodeStream(is);
-                bitmapList.add(bitmap);
-                is.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), Uri.fromFile(new File(imageList.get(i))));
+                Log.d("Fragment2","Bitmap "+i+" added");
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.d("Fragment2","Bitmap "+i+" EXCEPTION");
             }
+            bitmapList.add(bitmap);
         }
 
         gridView.setAdapter(new GridViewAdapter(this.getActivity()));
@@ -134,6 +134,8 @@ public class Fragment2 extends Fragment {
         return listOfAllImages;
 
     }
+
+
 
 
 }
