@@ -2,11 +2,15 @@ package com.example.user.project1;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -15,9 +19,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ImageView;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +34,9 @@ import java.util.ArrayList;
 public class Fragment2 extends Fragment {
 
     private Button btnTEST;
+    GridView gridView;
+    ArrayList<String> imageList;
+    public static List<Bitmap> bitmapList;
 
     public Fragment2() {
         // Required empty public constructor
@@ -33,12 +45,15 @@ public class Fragment2 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+
         View view = inflater.inflate(R.layout.fragment_fragment2, container, false);
-        // Inflate the layout for this fragment
-        Log.d("Fragment2", "Starting log");
         Activity thisActivity = getActivity();
-        // Here, thisActivity is the current activity
         int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
+        Log.d("Fragment2", "Starting log");
+
+        // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(thisActivity,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -53,8 +68,6 @@ public class Fragment2 extends Fragment {
 
             } else {
 
-                // No explanation needed, we can request the permission.
-
                 ActivityCompat.requestPermissions(thisActivity,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
@@ -64,16 +77,40 @@ public class Fragment2 extends Fragment {
                 // result of the request.
             }
         }
-        ArrayList<String> imageList = getAllShownImagesPath(getActivity());
+
+        gridView = view.findViewById(R.id.gridview);
+
+        imageList = getAllShownImagesPath(getActivity());
+
+
+        //Convery uri to bitmap images
+        for(int i = 0; i < imageList.size(); i++) {
+            try {
+                InputStream is = getActivity().getContentResolver().openInputStream( Uri.parse( imageList.get(0) ) );
+                Bitmap bitmap = BitmapFactory.decodeStream(is);
+                bitmapList.add(bitmap);
+                is.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        gridView.setAdapter(new GridViewAdapter(this.getActivity()));
+
+
+
+        /*bitmapList = GetBitmapImages (imageList);
+        bitmapList.Adapter = new GridViewAdapter(this, bitmapList);
         for (int i = 0; i<imageList.size(); i++) {
             Log.d("Fragment2", i+"'rd imageList: "+imageList.get(i));
         }
         Log.d("Fragment2", "There were a total of "+imageList.size()+"images on this phone");
-
-        ImageView imageView = (ImageView) view.findViewById(R.id.imageView2);
+        ImageView imageView = (image)
         Uri imgUri = Uri.parse(imageList.get(0));
         imageView.setImageURI(null);
-        imageView.setImageURI(imgUri);
+        imageView.setImageURI(imgUri);*/
 
         return view;
     }
