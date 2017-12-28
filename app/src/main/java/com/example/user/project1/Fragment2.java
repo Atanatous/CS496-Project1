@@ -3,16 +3,15 @@ package com.example.user.project1;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -24,24 +23,26 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class Fragment2 extends Fragment {
 
+    public static final int IMAGE_GALLERY_REQUEST = 122;
     GridView gridView;
     ArrayList<String> imageList;
+    public static List<Uri> uriList = new ArrayList<Uri>();
     public static List<Bitmap> bitmapList = new ArrayList<>();
 
     public Fragment2() {
@@ -84,8 +85,12 @@ public class Fragment2 extends Fragment {
             }
         }
 
+
+
         //perform this activity only once
         if(MainActivity.get_frag2First()) {
+            int a = 0;
+            /*
             imageList = getAllShownImagesPath(getActivity());
 
             //Convery uri to bitmap images
@@ -100,13 +105,18 @@ public class Fragment2 extends Fragment {
                 }
                 bitmapList.add(bitmap);
             }
-            MainActivity.false_frag2First();
+            MainActivity.false_frag2First();*/
         } else {
             Collections.shuffle(bitmapList);
         }
-            gridView = view.findViewById(R.id.gridview);
-            gridView.setAdapter(new GridViewAdapter(this.getActivity(), bitmapList));
-            Log.d("Fragment2","Adapter set");
+
+
+
+        gridView = view.findViewById(R.id.gridview);
+        gridView.setAdapter(new GridViewAdapter(this.getActivity(), bitmapList));
+        Log.d("Fragment2","Adapter set");
+
+
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
@@ -146,7 +156,18 @@ public class Fragment2 extends Fragment {
             //alertDialog.show();
         });
 
+        Button btnAddPhoto = (Button) view.findViewById(R.id.btnAddPhoto);
+
+        btnAddPhoto.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v)
+            {
+                onImageGalleryClicked(v);
+            }
+        });
+
             Log.d("Fragment2","Finished conclicklistener");
+
+
 
         /*bitmapList = GetBitmapImages (imageList);
         bitmapList.Adapter = new GridViewAdapter(this, bitmapList);
@@ -214,7 +235,7 @@ public class Fragment2 extends Fragment {
         final View view = factory.inflate(R.layout.oneimage, null);
 
         ImageView image = view.findViewById(R.id.imageView);
-        Uri imgUri = Uri.parse(imageList.get(position));
+        Uri imgUri = uriList.get(position);
         //image.setImageResource(R.drawable.ic_launcher_background);
         image.setImageURI(null);
         image.setImageURI(imgUri);
@@ -231,6 +252,75 @@ public class Fragment2 extends Fragment {
 
     }
 
+    public void onImageGalleryClicked(View view) {
+        // invoke image gallery using implicit intent
 
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+
+        File pictureDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        String pictureDirectoryPath = pictureDirectory.getPath();
+
+        //get uri representation
+        Uri data = Uri.parse(pictureDirectoryPath);
+
+        // set the data and type
+
+        //set the data and type. get all image types
+        photoPickerIntent.setDataAndType(data, "image/*");
+
+        startActivityForResult(photoPickerIntent, IMAGE_GALLERY_REQUEST);
+
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            //if we are here, everything processed successfully
+            if (requestCode == IMAGE_GALLERY_REQUEST) {
+                //if we are here, we are hearing back from image gallery
+
+                // the address of the image on the SD Card
+                Uri imageUri = data.getData();
+                    Bitmap bitmap = null;
+                    try {
+                        uriList.add(imageUri);
+                        bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), imageUri);
+                        if(!containBitMap(bitmap, bitmapList)) {
+                            Log.d("Fragment2", "Bitmap added");
+                            bitmapList.add(bitmap);
+                            gridView.setAdapter(new GridViewAdapter(getActivity(), bitmapList));
+                        } else {
+                            Log.d("Fragment2", "Found duplicate");
+                        }
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.d("Fragment2", "Bitmap EXCEPTION");
+                    }
+
+            }
+        }
+    }
+
+    public boolean containURI(Uri testUri, List<Uri> uriList) {
+        String stringUri = testUri.toString();
+        for (int i = 0; i < uriList.size(); i++) {
+            Log.d("Fragment2", "Compared" + stringUri + " with " + uriList.get(i));
+            if(stringUri.compareTo(uriList.get(i).toString()) == 0){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containBitMap(Bitmap bitmap, List<Bitmap> bitmapList) {;
+        for (int i = 0; i < bitmapList.size(); i++) {
+            if(bitmap.sameAs(bitmapList.get(i))){
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

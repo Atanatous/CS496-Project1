@@ -13,21 +13,20 @@
         android:text="프래그먼트 2" /> -->
 
     <Button
-        android:id="@+id/btnGallary"
+        android:id="@+id/btnAddPhoto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:layout_gravity="bottom|center"
+        android:text="Add Photo From Gallery" />
 
     <GridView
         android:id="@+id/gridview"
-        android:numColumns="3"
-        android:verticalSpacing="5dp"
-        android:horizontalSpacing="5dp"
-        android:stretchMode="columnWidth"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="550dp"
         android:gravity="center"
-        />
-
+        android:horizontalSpacing="5dp"
+        android:numColumns="3"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="5dp" />
 
 </FrameLayout>
