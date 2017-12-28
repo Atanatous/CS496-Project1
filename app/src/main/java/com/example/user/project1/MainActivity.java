@@ -17,6 +17,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final int Matching_Fragment = 3;
     private Button bt_tab1, bt_tab2, bt_tab3;
 
+    private Contact_Fragment mContact_fragment = new Contact_Fragment();
+//    private ContactDetail_Fragment mContactDetail_fragment = new ContactDetail_Fragment();
+    private Matching_Fragment mMatching_fragment = new Matching_Fragment();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,8 +120,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (frament_no){
             case 1:
                 // '프래그먼트1' 호출
-                Contact_Fragment contactFragment = new Contact_Fragment();
-                transaction.replace(R.id.fragment_container, contactFragment);
+                transaction.replace(R.id.fragment_container, mContact_fragment);
                 transaction.commit();
                 break;
 
@@ -130,8 +133,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case 3:
                 // '프래그먼트3' 호출
-                Matching_Fragment matchingFragment = new Matching_Fragment();
-                transaction.replace(R.id.fragment_container, matchingFragment);
+                transaction.replace(R.id.fragment_container, mMatching_fragment);
                 transaction.commit();
                 break;
         }

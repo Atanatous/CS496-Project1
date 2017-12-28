@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,8 +22,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -33,35 +34,72 @@ import static android.app.Activity.RESULT_OK;
  */
 public class Contact_Fragment extends Fragment {
     private ListView mListView;
-    private ListViewAdapter mAdaptor;
-    private ListViewItem item;
+    private ListViewAdapter mAdaptor = new ListViewAdapter();
+    private ListViewItem mItem;
     final int REQ_CODE_SELECT_IMAGE = 100;
+    boolean isFirst = true;
 
+    // Main function.
+    // Make ListView and set listeners on it.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.contact_fragment, container, false);
 
         mListView = (ListView) v.findViewById(R.id.contact_list_view);
-        mAdaptor = new ListViewAdapter();
 
-        makeContactList();
+        // At First, load contacts inside the phone
+        // Next time, just follow adapter's contact.
+        if (isFirst) {
+            makeContactList();
+            isFirst = false;
+        }else{
+            mListView.setAdapter(mAdaptor);
+        }
 
+        // Make Reset Button
         Button mAddressBtn = (Button) v.findViewById(R.id.btnAddress);
         mAddressBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mAdaptor.getItemList().clear();
                 makeContactList();
             }
         });
 
+        //Set ShortClick Listener
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Pass data 'adapter' and 'clicked item' to Detail_Fragment
+                // To pass, use bundle packing.
+                ListViewItem item = (ListViewItem) parent.getItemAtPosition(position);
+                ArrayList<ListViewItem> itemList = new ArrayList<>();
+                ArrayList<ListViewAdapter> adapterList = new ArrayList<>();
+                itemList.add(item);
+                adapterList.add(mAdaptor);
+
+                ContactDetail_Fragment detail_fragment = new ContactDetail_Fragment();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("itemList", itemList);
+                bundle.putSerializable("adapterList", adapterList);
+                detail_fragment.setArguments(bundle);
+
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                transaction.addToBackStack("List");
+                transaction.replace(R.id.fragment_container, detail_fragment);
+                transaction.commit();
+            }
+        });
+
+
+        // Set LongClick Listener
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                item = (ListViewItem) parent.getItemAtPosition(position);
+                mItem = (ListViewItem) parent.getItemAtPosition(position);
                 final CharSequence[] items = {"사진 추가", "수정하기", "삭제하기"};
-
-                final String name = item.getName();
+                final String name = mItem.getName();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle("원하시는 작업을 선택하세요.")
@@ -76,11 +114,11 @@ public class Contact_Fragment extends Fragment {
                                         startActivityForResult(intent, REQ_CODE_SELECT_IMAGE);
                                         break;
                                     case 1:
-                                    //    ((MainActivity)getActivity()).callFragment(2);
+
                                         break;
                                     case 2:
-                                        mAdaptor.getItemList().remove(item);
-                                        Toast.makeText(getActivity(), name +"이(가) 삭제되었습니다.", Toast.LENGTH_LONG);
+                                        mAdaptor.getItemList().remove(mItem);
+                                        Toast.makeText(getActivity(), name +"이(가) 삭제되었습니다.", Toast.LENGTH_LONG).show();
                                         mAdaptor.notifyDataSetChanged();
                                         break;
                                 }
@@ -90,16 +128,15 @@ public class Contact_Fragment extends Fragment {
                 AlertDialog dialog = builder.create();
                 dialog.show();
 
-                return false;
+                return true;
             }
         });
 
         return v;
     }
 
-    // Clear List and input all contact data.
+    // Load all contact data
     private void makeContactList(){
-        mAdaptor.getItemList().clear();
         ContentResolver cr = getActivity().getContentResolver();
         Cursor mCursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
 
@@ -135,6 +172,8 @@ public class Contact_Fragment extends Fragment {
         mListView.setAdapter(mAdaptor);
     }
 
+
+    // Get Photo from inside gallery.
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
@@ -146,20 +185,17 @@ public class Contact_Fragment extends Fragment {
         if (requestCode == REQ_CODE_SELECT_IMAGE) {
             try {
                 Bitmap mImage = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), data.getData());
-                Drawable mImageDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(mImage, 160, 160, true));
+                Drawable mImageDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(mImage, 300, 300, true));
 
-                item.setIcon(mImageDrawable);
+                mItem.setIcon(mImageDrawable);
                 mAdaptor.notifyDataSetChanged();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
+    // To sort mAdapter.
     static class CompareNameDesc implements Comparator<ListViewItem>{
         @Override
         public int compare(ListViewItem o1, ListViewItem o2){

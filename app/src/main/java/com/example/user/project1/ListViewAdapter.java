@@ -9,10 +9,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 
-public class ListViewAdapter extends BaseAdapter {
+public class ListViewAdapter extends BaseAdapter implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     // Adapter에 추가된 데이터 저장.
     private ArrayList<ListViewItem> mItemList = new ArrayList<>();

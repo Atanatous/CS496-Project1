@@ -2,7 +2,10 @@ package com.example.user.project1;
 
 import android.graphics.drawable.Drawable;
 
-public class ListViewItem {
+import java.io.Serializable;
+
+public class ListViewItem implements Serializable{
+    private static final long serialVersionUID = 1L;
     private Drawable mIcon;
     private String mName;
     private String mPhoneNum;
