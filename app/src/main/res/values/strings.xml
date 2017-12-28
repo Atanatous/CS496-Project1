@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">project1</string>
     <string name="contact_refresh">변경 사항 초기화</string>
+
     <string name="tab1">주소록</string>
     <string name="tab2">사진첩</string>
     <string name="tab3">심심풀이</string>
+
+    <string name="restart">Restart?</string>
+    <string name="end_message">끝났습니다!</string>
+    <string name="result_example">You correct 5 people!</string>
 </resources>

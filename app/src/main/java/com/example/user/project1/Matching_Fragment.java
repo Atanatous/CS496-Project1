@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ public class Matching_Fragment extends Fragment {
     private int wrongNum;
     private TextView correctText;
     private TextView wrongText;
+    private int totalNum;
 
     public Matching_Fragment() {
         // Required empty public constructor
@@ -65,6 +67,7 @@ public class Matching_Fragment extends Fragment {
         Random generator = new Random();
         ListViewItem item;
 
+        totalNum = (QUIZ_NUMBER > numOfContact) ? numOfContact : QUIZ_NUMBER;
 
         for (int i = 0; i < ((QUIZ_NUMBER > numOfContact) ? numOfContact : QUIZ_NUMBER); i++){
             item = mAdapter.getItem(generator.nextInt(numOfContact));
@@ -140,6 +143,7 @@ public class Matching_Fragment extends Fragment {
         iconImage.setOnClickListener(null);
         correctNum++;
         correctText.setText("맞은 갯수 : " + correctNum);
+        goToResult();
         Toast.makeText(getActivity(), "맞았습니다!", Toast.LENGTH_LONG).show();
     }
 
@@ -149,7 +153,23 @@ public class Matching_Fragment extends Fragment {
         iconImage.setOnClickListener(null);
         wrongNum++;
         wrongText.setText("틀린 갯수 : " + wrongNum);
+        goToResult();
         Toast.makeText(getActivity(), "틀렸습니다..", Toast.LENGTH_LONG).show();
+    }
+
+    private void goToResult(){
+        if ((correctNum + wrongNum) == totalNum){
+            Matching_Result_Fragment result_fragment = new Matching_Result_Fragment();
+
+            Bundle bundle = new Bundle();
+            bundle.putInt("correctNum", correctNum);
+            result_fragment.setArguments(bundle);
+
+            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+            transaction.addToBackStack("matching fragment");
+            transaction.add(R.id.fragment_container, result_fragment);
+            transaction.commit();
+        }
     }
 
 }
