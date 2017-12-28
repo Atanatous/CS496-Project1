@@ -144,6 +144,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case 3:
                 // '프래그먼트3' 호출
+                ListViewAdapter adapter = mContact_fragment.getAdapter();
+                ArrayList<ListViewAdapter> adapterList = new ArrayList<>();
+                adapterList.add(adapter);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("adapterList", adapterList);
+                mMatching_fragment.setArguments(bundle);
+
                 transaction.replace(R.id.fragment_container, mMatching_fragment);
                 transaction.commit();
                 break;

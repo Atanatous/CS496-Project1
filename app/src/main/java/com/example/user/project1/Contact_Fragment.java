@@ -34,10 +34,14 @@ import static android.app.Activity.RESULT_OK;
  */
 public class Contact_Fragment extends Fragment {
     private ListView mListView;
-    private ListViewAdapter mAdaptor = new ListViewAdapter();
+    private ListViewAdapter mAdapter = new ListViewAdapter();
     private ListViewItem mItem;
     final int REQ_CODE_SELECT_IMAGE = 100;
     boolean isFirst = true;
+
+    public ListViewAdapter getAdapter() {
+        return mAdapter;
+    }
 
     // Main function.
     // Make ListView and set listeners on it.
@@ -54,7 +58,7 @@ public class Contact_Fragment extends Fragment {
             makeContactList();
             isFirst = false;
         }else{
-            mListView.setAdapter(mAdaptor);
+            mListView.setAdapter(mAdapter);
         }
 
         // Make Reset Button
@@ -62,7 +66,7 @@ public class Contact_Fragment extends Fragment {
         mAddressBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mAdaptor.getItemList().clear();
+                mAdapter.getItemList().clear();
                 makeContactList();
             }
         });
@@ -77,7 +81,7 @@ public class Contact_Fragment extends Fragment {
                 ArrayList<ListViewItem> itemList = new ArrayList<>();
                 ArrayList<ListViewAdapter> adapterList = new ArrayList<>();
                 itemList.add(item);
-                adapterList.add(mAdaptor);
+                adapterList.add(mAdapter);
 
                 ContactDetail_Fragment detail_fragment = new ContactDetail_Fragment();
                 Bundle bundle = new Bundle();
@@ -117,9 +121,9 @@ public class Contact_Fragment extends Fragment {
 
                                         break;
                                     case 2:
-                                        mAdaptor.getItemList().remove(mItem);
+                                        mAdapter.getItemList().remove(mItem);
                                         Toast.makeText(getActivity(), name +"이(가) 삭제되었습니다.", Toast.LENGTH_LONG).show();
-                                        mAdaptor.notifyDataSetChanged();
+                                        mAdapter.notifyDataSetChanged();
                                         break;
                                 }
                             }
@@ -160,16 +164,16 @@ public class Contact_Fragment extends Fragment {
             }
 
             // check if adaptor has same contact
-            if (mAdaptor.isDuplicate(name, phoneNum)){
+            if (mAdapter.isDuplicate(name, phoneNum)){
                 continue;
             }else {
-                mAdaptor.addItem(ContextCompat.getDrawable(getActivity(), R.drawable.ic_account_box),
+                mAdapter.addItem(ContextCompat.getDrawable(getActivity(), R.drawable.ic_account_box),
                         name, phoneNum);
             }
         }
 
-        Collections.sort(mAdaptor.getItemList(), new CompareNameDesc());
-        mListView.setAdapter(mAdaptor);
+        Collections.sort(mAdapter.getItemList(), new CompareNameDesc());
+        mListView.setAdapter(mAdapter);
     }
 
 
@@ -188,7 +192,7 @@ public class Contact_Fragment extends Fragment {
                 Drawable mImageDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(mImage, 300, 300, true));
 
                 mItem.setIcon(mImageDrawable);
-                mAdaptor.notifyDataSetChanged();
+                mAdapter.notifyDataSetChanged();
             } catch (IOException e) {
                 e.printStackTrace();
             }
