@@ -1,7 +1,9 @@
 package com.example.user.project1;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,7 @@ public class Matching_Fragment extends Fragment {
 
     private ListViewAdapter mAdapter;
     private ArrayList<ListViewItem> mItemList;
+    private ArrayList<String> phoneNumList;
     private final int QUIZ_NUMBER = 9;
 
     public Matching_Fragment() {
@@ -39,8 +42,10 @@ public class Matching_Fragment extends Fragment {
 
         // add random 9 items in itemList
         int numOfContact = mAdapter.getCount();
+        Log.d("WARNING!!", "numOfContact : " + numOfContact);
         Random generator = new Random();
         ListViewItem item;
+        mItemList = new ArrayList<>();
 
         for (int i = 0; i < QUIZ_NUMBER; i++){
             item = mAdapter.getItem(generator.nextInt(numOfContact));
@@ -51,9 +56,10 @@ public class Matching_Fragment extends Fragment {
             mItemList.add(item);
         }
 
+        // Set Icon and Name with data passing from Contact_Fragment
         for (int i = 0; i < QUIZ_NUMBER; i++){
-            String nameId = "name" + i;
-            String iconId = "icon" + i;
+            String nameId = "name" + (i+1);
+            String iconId = "icon" + (i+1);
             int nameResId = getResources().getIdentifier(nameId, "id", getActivity().getPackageName());
             int iconResId = getResources().getIdentifier(iconId, "id", getActivity().getPackageName());
 
@@ -61,9 +67,15 @@ public class Matching_Fragment extends Fragment {
             ImageView iconImage = (ImageView) v.findViewById(iconResId);
 
             String name = mItemList.get(i).getName();
+            Drawable icon = mItemList.get(i).getIcon();
+            String phoneNum = mItemList.get(i).getPhoneNum();
 
             nameText.setText(name);
+            iconImage.setImageDrawable(icon);
+            phoneNumList.add(phoneNum);
         }
+
+
         
         return v;
     }
