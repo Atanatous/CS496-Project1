@@ -58,7 +58,7 @@ public class ListViewAdapter extends BaseAdapter implements Serializable {
 
     // 지정한 위치에 있는 데이터 리턴.
     @Override
-    public Object getItem(int position){
+    public ListViewItem getItem(int position){
         return mItemList.get(position);
     }
 

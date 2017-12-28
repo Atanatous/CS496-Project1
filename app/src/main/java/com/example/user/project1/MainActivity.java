@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
     private final int Contact_Fragment = 1;
@@ -133,6 +135,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case 3:
                 // '프래그먼트3' 호출
+                ListViewAdapter adapter = mContact_fragment.getAdapter();
+                ArrayList<ListViewAdapter> adapterList = new ArrayList<>();
+                adapterList.add(adapter);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("adapterList", adapterList);
+                mMatching_fragment.setArguments(bundle);
+
                 transaction.replace(R.id.fragment_container, mMatching_fragment);
                 transaction.commit();
                 break;
