@@ -24,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -113,20 +114,20 @@ public class Fragment2 extends Fragment {
             public void onItemClick(AdapterView<?> parent,
                                     View v, int position, long id)
             {
-                AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create(); //Read Update
+                /*AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create(); //Read Update
                 alertDialog.setTitle("hi");
                 alertDialog.setMessage("this is my app");
 
                 alertDialog.setButton("Continue..", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // here you can add functions
-                    }
-                });
+                    //functions
+                });*/
+                final int mPosition = position;
+                ShortClickAlert(mPosition);
 
                 Toast.makeText(getActivity().getBaseContext(),
                         "pic" + (position + 1) + " selected",
                         Toast.LENGTH_SHORT).show();
-                alertDialog.show();
+                //alertDialog.show();
 
             }
 
@@ -138,17 +139,14 @@ public class Fragment2 extends Fragment {
             public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
                                            int position, long arg3) {
                 Toast.makeText(getActivity().getBaseContext(), "LONG PRESS", Toast.LENGTH_SHORT).show();
-                final int f = position;
-                createDialog(arg1, f);
+                final int mPosition = position;
+                LongClickDialog(arg1, mPosition);
                 return true;
             }
             //alertDialog.show();
         });
 
             Log.d("Fragment2","Finished conclicklistener");
-
-
-
 
         /*bitmapList = GetBitmapImages (imageList);
         bitmapList.Adapter = new GridViewAdapter(this, bitmapList);
@@ -183,7 +181,7 @@ public class Fragment2 extends Fragment {
         return listOfAllImages;
 
     }
-    public void createDialog(View view, int position){
+    public void LongClickDialog(View view, int position){
         final int finalPosition = position;
 
         AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());
@@ -193,6 +191,7 @@ public class Fragment2 extends Fragment {
         adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 bitmapList.remove(finalPosition);
+                gridView.setAdapter(new GridViewAdapter(getActivity(), bitmapList));
                 Toast.makeText(getActivity().getApplicationContext(), "OK and removed", Toast.LENGTH_LONG).show();
             } });
 
@@ -204,6 +203,31 @@ public class Fragment2 extends Fragment {
 
         AlertDialog alertDialog = adb.create();
         alertDialog.show();
+
+    }
+
+    public void ShortClickAlert(int position) {
+        AlertDialog.Builder alertadd = new AlertDialog.Builder(getActivity());
+        alertadd.setTitle("Android");
+
+        LayoutInflater factory = LayoutInflater.from(getActivity());
+        final View view = factory.inflate(R.layout.oneimage, null);
+
+        ImageView image = view.findViewById(R.id.imageView);
+        Uri imgUri = Uri.parse(imageList.get(position));
+        //image.setImageResource(R.drawable.ic_launcher_background);
+        image.setImageURI(null);
+        image.setImageURI(imgUri);
+
+        alertadd.setNeutralButton("return", new
+                DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dlg, int ts) {
+
+            }
+                });
+        alertadd.setView(view);
+        alertadd.show();
+
 
     }
 
