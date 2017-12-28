@@ -28,6 +28,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.melnykov.fab.FloatingActionButton;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +44,7 @@ public class Contact_Fragment extends Fragment {
     private ListView mListView;
     private ListViewAdapter mAdapter = new ListViewAdapter();
     private ListViewItem mItem;
+    private FloatingActionButton fab;
     final int REQ_CODE_SELECT_IMAGE = 100;
     boolean isFirst = true;
 
@@ -76,6 +79,105 @@ public class Contact_Fragment extends Fragment {
                 makeContactList();
             }
         });
+
+        fab = (FloatingActionButton) v.findViewById(R.id.fab);
+        fab.attachToListView(mListView);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder modifyBuilder = new AlertDialog.Builder(getActivity());
+                modifyBuilder.setTitle("연락처 추가");
+
+                LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LinearLayout modifyLayout = (LinearLayout) layoutInflater.inflate(R.layout.contact_modify, null, false);
+                final EditText nameEdit = modifyLayout.findViewById(R.id.nameEdit);
+                final EditText phoneEdit = modifyLayout.findViewById(R.id.phoneEdit);
+
+                phoneEdit.addTextChangedListener(new TextWatcher() {
+                    boolean isFormatting;
+                    boolean deletingHyphen;
+                    int hyphenStart;
+                    boolean deletingBackward;
+
+                    @Override
+                    public void onTextChanged(CharSequence sequence, int start, int before, int count){
+
+                    }
+
+                    @Override
+                    public void beforeTextChanged(CharSequence sequence, int start, int count, int after) {
+                        if (isFormatting)
+                            return;
+
+                        final int selStart = Selection.getSelectionStart(sequence);
+                        final int selEnd = Selection.getSelectionEnd(sequence);
+                        if (sequence.length() > 1
+                                && count == 1
+                                && after == 0
+                                && sequence.charAt(start) == '-'
+                                && selStart == selEnd){
+                            deletingHyphen = true;
+                            hyphenStart = start;
+                            if (selStart == start + 1){
+                                deletingBackward = true;
+                            } else {
+                                deletingBackward = false;
+                            }
+                        } else {
+                            deletingHyphen = false;
+                        }
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable text) {
+                        if (isFormatting)
+                            return;
+
+                        isFormatting = true;
+
+                        if (deletingHyphen && hyphenStart > 0){
+                            if(deletingBackward){
+                                if (hyphenStart - 1 < text.length()){
+                                    text.delete(hyphenStart - 1, hyphenStart);
+                                }
+                            } else if (hyphenStart < text.length()){
+                                text.delete(hyphenStart, hyphenStart + 1);
+                            }
+                        }
+                        if (text.length() == 3 || text.length() == 8){
+                            text.append('-');
+                        }
+
+                        isFormatting = false;
+                    }
+                });
+                modifyBuilder.setView(modifyLayout);
+
+                modifyBuilder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String addedName = nameEdit.getText().toString();
+                        String addedNum = phoneEdit.getText().toString();
+
+                        mAdapter.addItem(ContextCompat.getDrawable(getActivity(), R.drawable.ic_account_box),
+                                addedName, addedNum);
+                        Collections.sort(mAdapter.getItemList(), new CompareNameDesc());
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+
+                modifyBuilder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+
+                modifyBuilder.show();
+            }
+        });
+
 
         //Set ShortClick Listener
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -167,7 +269,6 @@ public class Contact_Fragment extends Fragment {
                                                     deletingHyphen = false;
                                                 }
                                             }
-
 
                                             @Override
                                             public void afterTextChanged(Editable text) {
