@@ -22,9 +22,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final int Matching_Fragment = 3;
     private Button bt_tab1, bt_tab2, bt_tab3;
 
-
     private Contact_Fragment mContact_fragment = new Contact_Fragment();
-    private Matching_Fragment mMatching_fragment = new Matching_Fragment();
+    private Matching_Fragment mMatching_fragment;
 
     //Variables for Fragment2
     private static boolean frag2_first_time = true;
@@ -144,6 +143,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case 3:
                 // '프래그먼트3' 호출
+                mMatching_fragment = new Matching_Fragment();
+
                 ListViewAdapter adapter = mContact_fragment.getAdapter();
                 ArrayList<ListViewAdapter> adapterList = new ArrayList<>();
                 adapterList.add(adapter);
