@@ -18,9 +18,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -79,10 +81,7 @@ public class Fragment2 extends Fragment {
             }
         }
 
-        gridView = view.findViewById(R.id.gridview);
-
         imageList = getAllShownImagesPath(getActivity());
-
 
         //Convery uri to bitmap images
         for(int i = 0; i < imageList.size(); i++) {
@@ -96,8 +95,12 @@ public class Fragment2 extends Fragment {
             }
             bitmapList.add(bitmap);
         }
+        gridView = view.findViewById(R.id.gridview);
+        gridView.setAdapter(new GridViewAdapter(this.getActivity(), bitmapList));
+        Log.d("Fragment2","Adapter set");
 
-        gridView.setAdapter(new GridViewAdapter(this.getActivity()));
+        Log.d("Fragment2","Finished conclicklistener");
+
 
 
 

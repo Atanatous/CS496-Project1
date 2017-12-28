@@ -1,11 +1,16 @@
 package com.example.user.project1;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by user on 2017-12-27.
@@ -14,19 +19,22 @@ import android.widget.ImageView;
 public class GridViewAdapter extends BaseAdapter {
 
     private Context mContext;
+    private List<Bitmap> images;
 
-    public GridViewAdapter(Context c) {
+    public GridViewAdapter(Context c, List<Bitmap> images) {
         mContext = c;
+        this.images = images;
     }
 
     @Override
     public int getCount() {
-        return 0;
+        return images.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return null;
+
+        return i;
     }
 
     @Override
@@ -35,12 +43,19 @@ public class GridViewAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup viewGroup) {
-        ImageView imageView = new ImageView(mContext);
-        imageView.setLayoutParams(new GridView.LayoutParams(30, 30));
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        imageView.setPadding(1, 1, 1, 1);
-        imageView.setImageBitmap(Fragment2.bitmapList.get(position));
-        return null;
+    public View getView(int position, View convertView, ViewGroup viewGroup) {
+        ImageView imageView;
+
+        if (convertView == null) {
+            imageView = new ImageView(mContext);
+            imageView.setLayoutParams(new GridView.LayoutParams(85,85));
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            imageView.setPadding(8,8,8,8);
+        } else {
+            imageView = (ImageView) convertView;
+        }
+        imageView.setImageBitmap(images.get(position));
+        Log.d("GridViewAdapter", "Accessed get view of position number "+position);
+        return imageView;
     }
 }

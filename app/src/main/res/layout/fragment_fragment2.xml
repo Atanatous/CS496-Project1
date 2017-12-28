@@ -13,7 +13,7 @@
         android:text="프래그먼트 2" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btnGallary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Button" />
