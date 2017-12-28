@@ -1,16 +1,25 @@
 package com.example.user.project1;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private final int FRAGMENT1 = 1;
     private final int FRAGMENT2 = 2;
     private final int FRAGMENT3 = 3;
     private Button bt_tab1, bt_tab2, bt_tab3;
+
+    //Variables for Fragment2
+    private static boolean frag2_first_time = true;
+    ArrayList<String> imageList;
+    public static List<Bitmap> bitmapList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,5 +86,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 transaction.commit();
                 break;
         }
+    }
+
+    //Helper functions for fragment2
+
+    public static boolean get_frag2First() {
+        if(frag2_first_time){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static void true_frag2First() {
+        frag2_first_time = true;
+    }
+
+    public static void false_frag2First() {
+        frag2_first_time = false;
     }
 }

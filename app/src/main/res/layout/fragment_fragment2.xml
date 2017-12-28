@@ -6,11 +6,11 @@
     tools:context="com.example.user.project1.Fragment2">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <!--<TextView
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="프래그먼트 2" />
+        android:text="프래그먼트 2" /> -->
 
     <Button
         android:id="@+id/btnGallary"

@@ -2,7 +2,9 @@ package com.example.user.project1;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -29,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,7 +39,6 @@ import java.util.List;
  */
 public class Fragment2 extends Fragment {
 
-    private Button btnTEST;
     GridView gridView;
     ArrayList<String> imageList;
     public static List<Bitmap> bitmapList = new ArrayList<>();
@@ -81,25 +83,69 @@ public class Fragment2 extends Fragment {
             }
         }
 
-        imageList = getAllShownImagesPath(getActivity());
+        //perform this activity only once
+        if(MainActivity.get_frag2First()) {
+            imageList = getAllShownImagesPath(getActivity());
 
-        //Convery uri to bitmap images
-        for(int i = 0; i < imageList.size(); i++) {
-            Bitmap bitmap = null;
-            try {
-                bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), Uri.fromFile(new File(imageList.get(i))));
-                Log.d("Fragment2","Bitmap "+i+" added");
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.d("Fragment2","Bitmap "+i+" EXCEPTION");
+            //Convery uri to bitmap images
+            for (int i = 0; i < imageList.size(); i++) {
+                Bitmap bitmap = null;
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), Uri.fromFile(new File(imageList.get(i))));
+                    Log.d("Fragment2", "Bitmap " + i + " added");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.d("Fragment2", "Bitmap " + i + " EXCEPTION");
+                }
+                bitmapList.add(bitmap);
             }
-            bitmapList.add(bitmap);
+            MainActivity.false_frag2First();
+        } else {
+            Collections.shuffle(bitmapList);
         }
-        gridView = view.findViewById(R.id.gridview);
-        gridView.setAdapter(new GridViewAdapter(this.getActivity(), bitmapList));
-        Log.d("Fragment2","Adapter set");
+            gridView = view.findViewById(R.id.gridview);
+            gridView.setAdapter(new GridViewAdapter(this.getActivity(), bitmapList));
+            Log.d("Fragment2","Adapter set");
 
-        Log.d("Fragment2","Finished conclicklistener");
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+
+            public void onItemClick(AdapterView<?> parent,
+                                    View v, int position, long id)
+            {
+                AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create(); //Read Update
+                alertDialog.setTitle("hi");
+                alertDialog.setMessage("this is my app");
+
+                alertDialog.setButton("Continue..", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // here you can add functions
+                    }
+                });
+
+                Toast.makeText(getActivity().getBaseContext(),
+                        "pic" + (position + 1) + " selected",
+                        Toast.LENGTH_SHORT).show();
+                alertDialog.show();
+
+            }
+
+        });
+
+        gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+                                           int position, long arg3) {
+                Toast.makeText(getActivity().getBaseContext(), "LONG PRESS", Toast.LENGTH_SHORT).show();
+                final int f = position;
+                createDialog(arg1, f);
+                return true;
+            }
+            //alertDialog.show();
+        });
+
+            Log.d("Fragment2","Finished conclicklistener");
 
 
 
@@ -137,7 +183,29 @@ public class Fragment2 extends Fragment {
         return listOfAllImages;
 
     }
+    public void createDialog(View view, int position){
+        final int finalPosition = position;
 
+        AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());
+        //adb.setView(Main.this);
+        adb.setTitle("Do you wish to delete this image?");
+        adb.setIcon(android.R.drawable.ic_dialog_alert);
+        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                bitmapList.remove(finalPosition);
+                Toast.makeText(getActivity().getApplicationContext(), "OK and removed", Toast.LENGTH_LONG).show();
+            } });
+
+        adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getActivity().getApplicationContext(), "cancel", Toast.LENGTH_LONG).show();
+                //finish();
+            } });
+
+        AlertDialog alertDialog = adb.create();
+        alertDialog.show();
+
+    }
 
 
 
